@@ -94,79 +94,25 @@ function atualizarDropdownFiltros() {
     });
 }
 
-// Máscara Automática de CPF
+// Máscara Automática de CPF — limita a 11 dígitos
 document.getElementById('cpf').addEventListener('input', function (e) {
-    let valor = e.target.value.replace(/\D/g, "");
-    if (valor.length <= 11) {
-        valor = valor.replace(/(\d{3})(\d)/, "$1.$2");
-        valor = valor.replace(/(\d{3})(\d)/, "$1.$2");
-        valor = valor.replace(/(\d{3})(\d{1,2})$/, "$1-$2");
-    }
+    let valor = e.target.value.replace(/\D/g, "").slice(0, 11);
+    valor = valor.replace(/(\d{3})(\d)/, "$1.$2");
+    valor = valor.replace(/(\d{3})(\d)/, "$1.$2");
+    valor = valor.replace(/(\d{3})(\d{1,2})$/, "$1-$2");
     e.target.value = valor;
 });
 
-// Máscara de Data DD/MM/AAAA — sempre começa no DD
+// Máscara de Data DD/MM/AAAA
 (function() {
     const displayInput = document.getElementById('data_nascimento_display');
     const hiddenInput = document.getElementById('data_nascimento');
 
-    displayInput.addEventListener('focus', function() {
-        // Garante que o cursor vai pro início ao focar
-        setTimeout(() => { this.setSelectionRange(0, 0); }, 0);
-    });
+    function syncHidden(displayVal) {
+        const match = displayVal.match(/^(\d{2})\/(\d{2})\/(\d{4})$/);
+        hiddenInput.value = match ? `${match[3]}-${match[2]}-${match[1]}` : '';
+    }
 
-    displayInput.addEventListener('click', function() {
-        // Ao clicar em qualquer lugar, posiciona no segmento correto
-        const pos = this.selectionStart;
-        const val = this.value;
-        let segStart = 0;
-        if (pos <= 2) segStart = 0;
-        else if (pos <= 5) segStart = 3;
-        else segStart = 6;
-        setTimeout(() => { this.setSelectionRange(segStart, segStart); }, 0);
-    });
-
-    displayInput.addEventListener('keydown', function(e) {
-        const pos = this.selectionStart;
-        const val = this.value.split('');
-
-        // Apenas números e teclas de controle
-        if (!/^\d$/.test(e.key) && e.key !== 'Backspace' && e.key !== 'Delete' && e.key !== 'Tab' && e.key !== 'ArrowLeft' && e.key !== 'ArrowRight') {
-            e.preventDefault();
-            return;
-        }
-
-        if (e.key === 'Backspace') {
-            e.preventDefault();
-            // Apaga o dígito antes do cursor, pulando barras
-            let p = pos - 1;
-            if (p === 2 || p === 5) p--;
-            if (p < 0) return;
-            val[p] = '_';
-            this.value = val.join('');
-            setTimeout(() => { this.setSelectionRange(p, p); }, 0);
-            syncHidden(this.value);
-            return;
-        }
-
-        if (/^\d$/.test(e.key)) {
-            e.preventDefault();
-            let p = pos;
-            if (p === 2 || p === 5) p++; // pula a barra
-            if (p > 9) return;
-            val[p] = e.key;
-            this.value = val.join('');
-            let next = p + 1;
-            if (next === 2 || next === 5) next++;
-            setTimeout(() => { this.setSelectionRange(next, next); }, 0);
-            syncHidden(this.value);
-        }
-    });
-
-    // Inicializa o campo com placeholder formatado
-    displayInput.value = 'DD/MM/AAAA'.replace(/[DMA]/g, '_').replace(/\//g, '/');
-    // Na verdade deixa vazio e usa placeholder HTML
-    displayInput.value = '';
     displayInput.placeholder = 'DD/MM/AAAA';
 
     displayInput.addEventListener('focus', function() {
@@ -179,11 +125,49 @@ document.getElementById('cpf').addEventListener('input', function (e) {
         syncHidden(this.value);
     });
 
-    function syncHidden(displayVal) {
-        // Converte DD/MM/AAAA para AAAA-MM-DD para o hidden input
-        const match = displayVal.match(/^(\d{2})\/(\d{2})\/(\d{4})$/);
-        hiddenInput.value = match ? `${match[3]}-${match[2]}-${match[1]}` : '';
-    }
+    displayInput.addEventListener('keydown', function(e) {
+        const pos = this.selectionStart;
+        const val = this.value.split('');
+
+        if (!/^\d$/.test(e.key) && e.key !== 'Backspace' && e.key !== 'Tab' && e.key !== 'ArrowLeft' && e.key !== 'ArrowRight') {
+            e.preventDefault();
+            return;
+        }
+
+        if (e.key === 'Backspace') {
+            e.preventDefault();
+            let p = pos - 1;
+            while (p >= 0 && (val[p] === '/' )) p--;
+            if (p < 0) return;
+            val[p] = '_';
+            this.value = val.join('');
+            setTimeout(() => { this.setSelectionRange(p, p); }, 0);
+            syncHidden(this.value);
+            return;
+        }
+
+        if (/^\d$/.test(e.key)) {
+            e.preventDefault();
+            let p = pos;
+            while (p < val.length && val[p] === '/') p++;
+            if (p >= val.length) return;
+            val[p] = e.key;
+            this.value = val.join('');
+            let next = p + 1;
+            while (next < val.length && val[next] === '/') next++;
+            setTimeout(() => { this.setSelectionRange(next, next); }, 0);
+            syncHidden(this.value);
+        }
+    });
+
+    displayInput.addEventListener('click', function() {
+        const pos = this.selectionStart;
+        let segStart = 0;
+        if (pos <= 2) segStart = 0;
+        else if (pos <= 5) segStart = 3;
+        else segStart = 6;
+        setTimeout(() => { this.setSelectionRange(segStart, segStart); }, 0);
+    });
 })();
 
 // Controle de Fluxo entre os Passos do Formulário
