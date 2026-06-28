@@ -94,13 +94,56 @@ function atualizarDropdownFiltros() {
     });
 }
 
-// Máscara Automática de CPF — limita a 11 dígitos
+// Validação de CPF (dígitos verificadores + bloqueia sequências repetidas)
+function validarCPF(cpf) {
+    const nums = cpf.replace(/\D/g, '');
+    if (nums.length !== 11) return false;
+    if (/^(\d)\1{10}$/.test(nums)) return false;
+    let soma = 0;
+    for (let i = 0; i < 9; i++) soma += parseInt(nums[i]) * (10 - i);
+    let resto = (soma * 10) % 11;
+    if (resto === 10 || resto === 11) resto = 0;
+    if (resto !== parseInt(nums[9])) return false;
+    soma = 0;
+    for (let i = 0; i < 10; i++) soma += parseInt(nums[i]) * (11 - i);
+    resto = (soma * 10) % 11;
+    if (resto === 10 || resto === 11) resto = 0;
+    return resto === parseInt(nums[10]);
+}
+
+function mostrarErroCampo(id, msg) {
+    let el = document.getElementById('erro-' + id);
+    if (!el) {
+        el = document.createElement('span');
+        el.id = 'erro-' + id;
+        el.style.cssText = 'color:#ef4444;font-size:0.78rem;margin-top:0.25rem;display:block;';
+        document.getElementById(id).parentNode.appendChild(el);
+    }
+    el.textContent = msg;
+}
+
+function limparErroCampo(id) {
+    const el = document.getElementById('erro-' + id);
+    if (el) el.textContent = '';
+}
+
+// Máscara Automática de CPF — limita a 11 dígitos + validação inline
 document.getElementById('cpf').addEventListener('input', function (e) {
     let valor = e.target.value.replace(/\D/g, "").slice(0, 11);
     valor = valor.replace(/(\d{3})(\d)/, "$1.$2");
     valor = valor.replace(/(\d{3})(\d)/, "$1.$2");
     valor = valor.replace(/(\d{3})(\d{1,2})$/, "$1-$2");
     e.target.value = valor;
+    const nums = valor.replace(/\D/g, '');
+    if (nums.length === 11) {
+        if (!validarCPF(valor)) {
+            mostrarErroCampo('cpf', '⚠️ CPF inválido. Verifique os números digitados.');
+        } else {
+            limparErroCampo('cpf');
+        }
+    } else {
+        limparErroCampo('cpf');
+    }
 });
 
 // Máscara de Data DD/MM/AAAA
@@ -123,6 +166,22 @@ document.getElementById('cpf').addEventListener('input', function (e) {
     displayInput.addEventListener('blur', function() {
         if (this.value === '__/__/____') this.value = '';
         syncHidden(this.value);
+        const val = this.value;
+        if (!val) { limparErroCampo('data_nascimento_display'); return; }
+        const match = val.match(/^(\d{2})\/(\d{2})\/(\d{4})$/);
+        if (!match || val.includes('_')) {
+            mostrarErroCampo('data_nascimento_display', '⚠️ Data incompleta. Use o formato DD/MM/AAAA.');
+            return;
+        }
+        const dia = parseInt(match[1]), mes = parseInt(match[2]), ano = parseInt(match[3]);
+        const dataObj = new Date(ano, mes - 1, dia);
+        const hoje = new Date();
+        if (dataObj.getDate() !== dia || dataObj.getMonth() !== mes - 1 || dataObj.getFullYear() !== ano
+            || mes < 1 || mes > 12 || dia < 1 || ano < 1900 || dataObj > hoje) {
+            mostrarErroCampo('data_nascimento_display', '⚠️ Data inválida. Verifique dia, mês e ano.');
+        } else {
+            limparErroCampo('data_nascimento_display');
+        }
     });
 
     displayInput.addEventListener('keydown', function(e) {
@@ -177,11 +236,51 @@ function irParaPasso(numeroPasso) {
         const cpf = document.getElementById('cpf').value.trim();
         const dataNas = document.getElementById('data_nascimento_display').value.trim();
 
-        if (!nome || !cpf || !dataNas || dataNas === '__/__/____') {
-            alert("Por favor, preencha todos os campos do Passo 1 (Nome, CPF e Nascimento) antes de avançar.");
-            return;
+        let erros = false;
+
+        if (!nome) {
+            mostrarErroCampo('nome', '⚠️ Nome obrigatório.');
+            erros = true;
+        } else {
+            limparErroCampo('nome');
         }
+
+        const cpfNums = cpf.replace(/\D/g, '');
+        if (cpfNums.length !== 11) {
+            mostrarErroCampo('cpf', '⚠️ CPF deve ter 11 dígitos.');
+            erros = true;
+        } else if (!validarCPF(cpf)) {
+            mostrarErroCampo('cpf', '⚠️ CPF inválido. Verifique os números digitados.');
+            erros = true;
+        } else {
+            limparErroCampo('cpf');
+        }
+
+        if (!dataNas || dataNas === '__/__/____' || dataNas.includes('_')) {
+            mostrarErroCampo('data_nascimento_display', '⚠️ Data incompleta. Use o formato DD/MM/AAAA.');
+            erros = true;
+        } else {
+            const match = dataNas.match(/^(\d{2})\/(\d{2})\/(\d{4})$/);
+            if (!match) {
+                mostrarErroCampo('data_nascimento_display', '⚠️ Data inválida. Use DD/MM/AAAA.');
+                erros = true;
+            } else {
+                const dia = parseInt(match[1]), mes = parseInt(match[2]), ano = parseInt(match[3]);
+                const dataObj = new Date(ano, mes - 1, dia);
+                const hoje = new Date();
+                if (dataObj.getDate() !== dia || dataObj.getMonth() !== mes - 1 ||
+                    dataObj.getFullYear() !== ano || mes < 1 || mes > 12 || dia < 1 || ano < 1900 || dataObj > hoje) {
+                    mostrarErroCampo('data_nascimento_display', '⚠️ Data inválida. Verifique dia, mês e ano.');
+                    erros = true;
+                } else {
+                    limparErroCampo('data_nascimento_display');
+                }
+            }
+        }
+
+        if (erros) return;
     }
+
 
     document.querySelectorAll('.conteudo-passo').forEach(p => p.classList.remove('ativo'));
     document.querySelectorAll('.passo').forEach(ind => ind.classList.remove('ativo'));
