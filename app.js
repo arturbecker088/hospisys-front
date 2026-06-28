@@ -441,26 +441,40 @@ function atualizarTabelaFila() {
         // Veredito clínico (perguntas que deram SIM)
         const justTexto = p.justificativas && p.justificativas.length
             && p.justificativas[0] !== "Nenhum critério de risco específico assinalado nos questionários do protocolo clínico."
-            ? p.justificativas.join('<br>')
+            ? p.justificativas
             : null;
 
         const isEmergenciaDireta = p.protocolo === 'EMERGÊNCIA DIRETA';
-        const veredito = justTexto ? (
-            isEmergenciaDireta
-                ? `<div class="bloco-explicacao" style="margin-top:0.4rem;">
-                       <div class="explicacao-texto">${justTexto}</div>
-                   </div>`
-                : `<div style="margin-top:0.3rem;">
-                       <div style="font-size:0.78rem;font-weight:700;color:var(--texto-mutado);margin-bottom:0.2rem;">📋 VEREDITO</div>
-                       <div style="font-size:0.82rem;color:var(--texto-escuro);font-weight:500;">${justTexto.split('<br>')[0].replace(/\[.*?\]:\s*/, '').split(':')[0]}</div>
-                       <button class="btn-explicacao" onclick="toggleExplicacao('exp-${idx}', this)" title="Ver explicação">
-                           💬 Explicação
-                       </button>
-                       <div class="bloco-explicacao" id="exp-${idx}" style="display:none;">
-                           <div class="explicacao-texto">${justTexto}</div>
-                       </div>
-                   </div>`
-        ) : '';
+        let veredito = '';
+        if (justTexto) {
+            // Extrai só o nome do critério (parte entre colchetes [NOME DO CRITÉRIO])
+            const nomesCriterios = justTexto.map(j => {
+                const match = j.match(/\[(.*?)\]/);
+                return match ? match[1] : j.split(':')[0].replace(/^\[|\]$/g, '').trim();
+            }).filter(Boolean);
+
+            // Explicação completa para o botão
+            const explicacaoCompleta = justTexto.join('<br><br>');
+
+            if (isEmergenciaDireta) {
+                veredito = `<div class="bloco-explicacao" style="margin-top:0.4rem;">
+                    <div class="explicacao-texto">${explicacaoCompleta}</div>
+                </div>`;
+            } else {
+                veredito = `<div style="margin-top:0.3rem;">
+                    <span style="font-size:0.78rem;font-weight:700;color:var(--texto-mutado);">📋 VEREDITO</span>
+                    <div style="font-size:0.85rem;font-weight:600;color:var(--texto-escuro);margin-top:0.2rem;">
+                        ${nomesCriterios.join(' • ')}
+                    </div>
+                    <button class="btn-explicacao" onclick="toggleExplicacao('exp-${idx}', this)">
+                        💬 Explicação
+                    </button>
+                    <div class="bloco-explicacao" id="exp-${idx}" style="display:none;">
+                        <div class="explicacao-texto">${explicacaoCompleta}</div>
+                    </div>
+                </div>`;
+            }
+        }
 
         tbody.innerHTML += `
             <tr>
