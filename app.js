@@ -247,15 +247,23 @@ function renderizarBlocoAtual() {
 
     perguntas.forEach((p) => {
         htmlPerguntas += `
-            <div class="linha-pergunta">
-                <span class="texto-pergunta">${p.pergunta}</span>
-                <div class="opcoes-sim-nao">
-                    <label>
-                        <input type="radio" name="perg_${p.id}" value="SIM" class="btn-radio btn-radio-sim" required>
-                    </label>
-                    <label>
-                        <input type="radio" name="perg_${p.id}" value="NÃO" class="btn-radio btn-radio-nao" checked>
-                    </label>
+            <div class="linha-pergunta" style="flex-direction:column;align-items:flex-start;gap:0.5rem;">
+                <div style="display:flex;justify-content:space-between;align-items:center;width:100%;">
+                    <span class="texto-pergunta">${p.pergunta}</span>
+                    <div class="opcoes-sim-nao">
+                        <label>
+                            <input type="radio" name="perg_${p.id}" value="SIM" class="btn-radio btn-radio-sim" required>
+                        </label>
+                        <label>
+                            <input type="radio" name="perg_${p.id}" value="NÃO" class="btn-radio btn-radio-nao" checked>
+                        </label>
+                    </div>
+                </div>
+                <button class="btn-explicacao" onclick="toggleExplicacao('exp-prot-${p.id}', this)" style="margin-top:0.2rem;">
+                    💬 Explicação
+                </button>
+                <div class="bloco-explicacao" id="exp-prot-${p.id}" style="display:none;width:100%;">
+                    <div class="explicacao-texto">${p.explicacao}</div>
                 </div>
             </div>
         `;
@@ -447,43 +455,8 @@ function atualizarTabelaFila() {
                </div>`
             : '';
 
-        // Veredito clínico (perguntas que deram SIM)
-        const justTexto = p.justificativas && p.justificativas.length
-            && p.justificativas[0] !== "Nenhum critério de risco específico assinalado nos questionários do protocolo clínico."
-            ? p.justificativas
-            : null;
-
-        const isEmergenciaDireta = p.protocolo === 'EMERGÊNCIA DIRETA';
-        let veredito = '';
-        if (justTexto) {
-            // Extrai só o nome do critério (parte entre colchetes [NOME DO CRITÉRIO])
-            const nomesCriterios = justTexto.map(j => {
-                const match = j.match(/\[(.*?)\]/);
-                return match ? match[1] : j.split(':')[0].replace(/^\[|\]$/g, '').trim();
-            }).filter(Boolean);
-
-            // Explicação completa para o botão
-            const explicacaoCompleta = justTexto.join('<br><br>');
-
-            if (isEmergenciaDireta) {
-                veredito = `<div class="bloco-explicacao" style="margin-top:0.4rem;">
-                    <div class="explicacao-texto">${explicacaoCompleta}</div>
-                </div>`;
-            } else {
-                veredito = `<div style="margin-top:0.3rem;">
-                    <span style="font-size:0.78rem;font-weight:700;color:var(--texto-mutado);">📋 VEREDITO</span>
-                    <div style="font-size:0.85rem;font-weight:600;color:var(--texto-escuro);margin-top:0.2rem;">
-                        ${nomesCriterios.join(' • ')}
-                    </div>
-                    <button class="btn-explicacao" onclick="toggleExplicacao('exp-${idx}', this)">
-                        💬 Explicação
-                    </button>
-                    <div class="bloco-explicacao" id="exp-${idx}" style="display:none;">
-                        <div class="explicacao-texto">${explicacaoCompleta}</div>
-                    </div>
-                </div>`;
-            }
-        }
+        // Veredito removido da fila — explicação fica só no formulário
+        const veredito = '';
 
         tbody.innerHTML += `
             <tr>
