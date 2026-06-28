@@ -152,6 +152,8 @@ document.getElementById('cpf').addEventListener('input', function (e) {
     const hiddenInput = document.getElementById('data_nascimento');
 
     function syncHidden(displayVal) {
+        // Só sincroniza se a data estiver completamente preenchida (sem underscores)
+        const semUnderscore = displayVal.replace(/_/g, '');
         const match = displayVal.match(/^(\d{2})\/(\d{2})\/(\d{4})$/);
         hiddenInput.value = match ? `${match[3]}-${match[2]}-${match[1]}` : '';
     }
@@ -415,7 +417,14 @@ let dadosLocaisTriagem = {};
 async function finalizarTriagemComSucesso(classificacaoFinal) {
     const nome = document.getElementById('nome').value.trim();
     const cpf = document.getElementById('cpf').value.trim();
-    const dataNas = document.getElementById('data_nascimento').value;
+    // Converte a data do display (DD/MM/AAAA) para YYYY-MM-DD no momento do envio
+    const dataDisplay = document.getElementById('data_nascimento_display').value.trim();
+    const dataMatch = dataDisplay.match(/^(\d{2})\/(\d{2})\/(\d{4})$/);
+    const dataNas = dataMatch ? `${dataMatch[3]}-${dataMatch[2]}-${dataMatch[1]}` : '';
+    if (!dataNas) {
+        alert("Data de nascimento inválida. Volte ao Passo 1 e corrija.");
+        return;
+    }
 
     // Coleta sintomas selecionados
     const sintomasSelecionados = Array.from(document.querySelectorAll('input[name="sintomas"]:checked'))
