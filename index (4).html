@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HospiSys | Triagem Avançada</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="logo-container">
+                <svg class="logo-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M5 6.5H8V20H5V6.5Z" fill="currentColor"/>
+                    <path d="M9 4.5H15V20H9V4.5Z" fill="currentColor"/>
+                    <path d="M16 6.5H19V20H16V6.5Z" fill="currentColor"/>
+                    <path d="M10.5 20V14.5H11.5V20H10.5Z" fill="#fff"/>
+                    <path d="M12.5 20V14.5H13.5V20H12.5Z" fill="#fff"/>
+                    <circle cx="12" cy="9.5" r="2.5" fill="#fff"/>
+                    <path d="M11.5 8.5H12.5V10.5H11.5V8.5Z" fill="currentColor"/>
+                    <path d="M11 9H13V10H11V9Z" fill="currentColor"/>
+                </svg>
+                <span class="logo-texto">HospiSys</span>
+            </div>
+
+    </nav>
+
+    <main class="app-layout">
+
+        <section class="card">
+            <div class="alerta-urgencia">
+                <div class="urgencia-info">
+                    <span class="piscando-vermelho"></span>
+                    <div>
+                        <strong>Paciente Crítico?</strong>
+                        <p>Pular a triagem.</p>
+                    </div>
+                </div>
+                <button type="button" class="btn-emergencia" onclick="acionarEmergenciaImediata()">EMERGÊNCIA DIRETA</button>
+            </div>
+
+            <div class="passos-indicador">
+                <div class="passo ativo" id="ind-passo1"><span>1</span> Identificação</div>
+                <div class="linha-passo"></div>
+                <div class="passo" id="ind-passo2"><span>2</span> Sintomas</div>
+                <div class="linha-passo"></div>
+                <div class="passo" id="ind-passo3"><span>3</span> Comorbidades</div>
+                <div class="linha-passo"></div>
+                <div class="passo" id="ind-passo4"><span>4</span> Protocolo</div>
+            </div>
+
+            <form id="form-triagem">
+
+                <div id="passo-1" class="conteudo-passo ativo">
+                    <div class="card-header">
+                        <h2>Identificação Básica</h2>
+                        <p>Insira os dados obrigatórios de registro do paciente</p>
+                    </div>
+
+                    <div class="input-grupo">
+                        <label for="nome">Nome Completo</label>
+                        <input type="text" id="nome" placeholder="Digite o nome sem abreviações">
+                    </div>
+
+                    <div class="grid-duplo">
+                        <div class="input-grupo">
+                            <label for="cpf">CPF</label>
+                            <input type="text" id="cpf" placeholder="000.000.000-00">
+                        </div>
+                        <div class="input-grupo">
+                            <label for="data_nascimento_display">Data de Nascimento</label>
+                            <input type="text" id="data_nascimento_display" placeholder="DD/MM/AAAA" maxlength="10" autocomplete="off">
+                            <input type="hidden" id="data_nascimento">
+                        </div>
+                    </div>
+
+                    <button type="button" class="btn-proximo" onclick="irParaPasso(2)">Avançar para Sintomas ➔</button>
+                </div>
+
+                <div id="passo-2" class="conteudo-passo">
+                    <div class="card-header">
+                        <h2>Mapeamento de Sintomas</h2>
+                        <p>Selecione todos os sinais clínicos aparentes ou relatados</p>
+                    </div>
+
+                    <div class="input-grupo">
+                        <div class="sintomas-grid">
+                            <label class="chip-sintoma"><input type="checkbox" name="sintomas" value="Febre"><span>🌡️ Febre</span></label>
+                            <label class="chip-sintoma"><input type="checkbox" name="sintomas" value="Calafrios"><span>🥶 Calafrios</span></label>
+                            <label class="chip-sintoma"><input type="checkbox" name="sintomas" value="Fadiga Extrema"><span>🥱 Fadiga Extrema</span></label>
+                            <label class="chip-sintoma"><input type="checkbox" name="sintomas" value="Dor de Cabeça"><span>🤯 Dor de Cabeça</span></label>
+                            <label class="chip-sintoma"><input type="checkbox" name="sintomas" value="Tontura"><span>🌀 Tontura</span></label>
+                            <label class="chip-sintoma"><input type="checkbox" name="sintomas" value="Desmaio"><span>😵 Desmaio</span></label>
+                            <label class="chip-sintoma"><input type="checkbox" name="sintomas" value="Confusão Mental"><span>🧠 Confusão Mental</span></label>
+                            <label class="chip-sintoma"><input type="checkbox" name="sintomas" value="Dor no Peito"><span>🫀 Dor no Peito</span></label>
+                            <label class="chip-sintoma"><input type="checkbox" name="sintomas" value="Falta de Ar"><span>🫁 Falta de Ar</span></label>
+                            <label class="chip-sintoma"><input type="checkbox" name="sintomas" value="Tosse Seca"><span>😮‍💨 Tosse Seca</span></label>
+                            <label class="chip-sintoma"><input type="checkbox" name="sintomas" value="Tosse com Catarro"><span>🤧 Tosse com Catarro</span></label>
+                            <label class="chip-sintoma"><input type="checkbox" name="sintomas" value="Náusea / Vômito"><span>🤢 Náusea / Vômito</span></label>
+                            <label class="chip-sintoma"><input type="checkbox" name="sintomas" value="Dor Abdominal"><span>🫃 Dor Abdominal</span></label>
+                            <label class="chip-sintoma"><input type="checkbox" name="sintomas" value="Diarreia"><span>🚽 Diarreia</span></label>
+                            <label class="chip-sintoma"><input type="checkbox" name="sintomas" value="Coriza"><span>💧 Coriza</span></label>
+                            <label class="chip-sintoma"><input type="checkbox" name="sintomas" value="Dor de Garganta"><span>🗣️ Dor de Garganta</span></label>
+                            <label class="chip-sintoma"><input type="checkbox" name="sintomas" value="Perda de Olfato/Paladar"><span>👃 Perda de Olfato/Paladar</span></label>
+                            <label class="chip-sintoma"><input type="checkbox" name="sintomas" value="Dor nas Articulações"><span>🦴 Dor nas Articulações</span></label>
+                            <label class="chip-sintoma"><input type="checkbox" name="sintomas" value="Dor Muscular"><span>💪 Dor Muscular</span></label>
+                            <label class="chip-sintoma"><input type="checkbox" name="sintomas" value="Inchaço / Edema"><span>🦶 Inchaço / Edema</span></label>
+                            <label class="chip-sintoma"><input type="checkbox" name="sintomas" value="Palpitações"><span>💓 Palpitações</span></label>
+                            <label class="chip-sintoma"><input type="checkbox" name="sintomas" value="Pressão Alta"><span>📈 Pressão Alta</span></label>
+                            <label class="chip-sintoma"><input type="checkbox" name="sintomas" value="Pressão Baixa"><span>📉 Pressão Baixa</span></label>
+                            <label class="chip-sintoma"><input type="checkbox" name="sintomas" value="Sangramento"><span>🩸 Sangramento</span></label>
+                            <label class="chip-sintoma"><input type="checkbox" name="sintomas" value="Manchas na Pele"><span>🔴 Manchas na Pele</span></label>
+                            <label class="chip-sintoma"><input type="checkbox" name="sintomas" value="Coceira / Prurido"><span>🤲 Coceira / Prurido</span></label>
+                            <label class="chip-sintoma"><input type="checkbox" name="sintomas" value="Incontinência Urinária"><span>🚾 Incontinência Urinária</span></label>
+                            <label class="chip-sintoma"><input type="checkbox" name="sintomas" value="Dificuldade para Urinar"><span>🔒 Dificuldade para Urinar</span></label>
+                            <label class="chip-sintoma"><input type="checkbox" name="sintomas" value="Convulsão"><span>⚡ Convulsão</span></label>
+                            <label class="chip-sintoma"><input type="checkbox" name="sintomas" value="Paralisia / Fraqueza"><span>🙆 Paralisia / Fraqueza</span></label>
+                            <label class="chip-sintoma"><input type="checkbox" name="sintomas" value="Visão Turva"><span>👁️ Visão Turva</span></label>
+                            <label class="chip-sintoma"><input type="checkbox" name="sintomas" value="Dor nos Olhos"><span>😣 Dor nos Olhos</span></label>
+                            <label class="chip-sintoma"><input type="checkbox" name="sintomas" value="Dor de Ouvido"><span>👂 Dor de Ouvido</span></label>
+                            <label class="chip-sintoma"><input type="checkbox" name="sintomas" value="Zumbido no Ouvido"><span>🔔 Zumbido no Ouvido</span></label>
+                            <label class="chip-sintoma"><input type="checkbox" name="sintomas" value="Ansiedade / Agitação"><span>😰 Ansiedade / Agitação</span></label>
+                            <label class="chip-sintoma"><input type="checkbox" name="sintomas" value="Trauma / Queda"><span>🤕 Trauma / Queda</span></label>
+                            <label class="chip-sintoma"><input type="checkbox" name="sintomas" value="Queimadura"><span>🔥 Queimadura</span></label>
+                            <label class="chip-sintoma"><input type="checkbox" name="sintomas" value="Intoxicação / Ingestão"><span>☠️ Intoxicação / Ingestão</span></label>
+
+                            <label class="chip-sintoma o-outros">
+                                <input type="checkbox" id="chk-outro-sintoma" onchange="toggleCampoOutro()">
+                                <span>➕ Outro...</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="input-grupo" id="grupo-outro-sintoma" style="display: none; margin-top: 1rem;">
+                        <label for="outro_sintoma_texto">Especifique o outro sintoma:</label>
+                        <input type="text" id="outro_sintoma_texto" placeholder="Ex: Manchas na pele, sangramento...">
+                    </div>
+
+                    <div class="input-grupo" style="margin-top: 1.5rem;">
+                        <label for="observacoes">Observações Adicionais (Opcional)</label>
+                        <input type="text" id="observacoes" placeholder="Ex: Detalhes sobre o tempo dos sintomas...">
+                    </div>
+
+                    <div class="botoes-alinhamento">
+                        <button type="button" class="btn-voltar" onclick="irParaPasso(1)">⬅ Voltar</button>
+                        <button type="button" class="btn-proximo" onclick="irParaPasso(3)">Avançar para Comorbidades ➔</button>
+                    </div>
+                </div>
+
+                <div id="passo-3" class="conteudo-passo">
+                    <div class="card-header">
+                        <h2>Comorbidades Preexistentes</h2>
+                        <p>Marque os fatores crônicos de risco do histórico do paciente</p>
+                    </div>
+
+                    <div class="input-grupo">
+                        <div class="comorbidades-grid">
+                            <label class="chip-checkbox"><input type="checkbox" name="comorbidades" value="Diabetes Mellitus"><span>Diabetes Mellitus</span></label>
+                            <label class="chip-checkbox"><input type="checkbox" name="comorbidades" value="Hipertensão Arterial (HAS)"><span>Hipertensão Arterial (HAS)</span></label>
+                            <label class="chip-checkbox"><input type="checkbox" name="comorbidades" value="Asma / DPOC Crônica"><span>Asma / DPOC Crônica</span></label>
+                            <label class="chip-checkbox"><input type="checkbox" name="comorbidades" value="Insuficiência Renal Crônica"><span>Insuficiência Renal Crônica</span></label>
+                            <label class="chip-checkbox"><input type="checkbox" name="comorbidades" value="Cardiopatia"><span>Cardiopatia</span></label>
+                            <label class="chip-checkbox"><input type="checkbox" name="comorbidades" value="Imunossupressão"><span>Imunossupressão</span></label>
+                            <label class="chip-checkbox"><input type="checkbox" name="comorbidades" value="Obesidade Mórbida"><span>Obesidade Mórbida</span></label>
+                            <label class="chip-checkbox"><input type="checkbox" name="comorbidades" value="Câncer / Neoplasia"><span>Câncer / Neoplasia</span></label>
+                            <label class="chip-checkbox"><input type="checkbox" name="comorbidades" value="AVC / Sequela Neurológica"><span>AVC / Sequela Neurológica</span></label>
+                            <label class="chip-checkbox"><input type="checkbox" name="comorbidades" value="Doença de Parkinson"><span>Doença de Parkinson</span></label>
+                            <label class="chip-checkbox"><input type="checkbox" name="comorbidades" value="Alzheimer / Demência"><span>Alzheimer / Demência</span></label>
+                            <label class="chip-checkbox"><input type="checkbox" name="comorbidades" value="Epilepsia"><span>Epilepsia</span></label>
+                            <label class="chip-checkbox"><input type="checkbox" name="comorbidades" value="Hipotireoidismo"><span>Hipotireoidismo</span></label>
+                            <label class="chip-checkbox"><input type="checkbox" name="comorbidades" value="Hipertireoidismo"><span>Hipertireoidismo</span></label>
+                            <label class="chip-checkbox"><input type="checkbox" name="comorbidades" value="Insuficiência Hepática"><span>Insuficiência Hepática</span></label>
+                            <label class="chip-checkbox"><input type="checkbox" name="comorbidades" value="Doença Inflamatória Intestinal"><span>Doença Inflamatória Intestinal</span></label>
+                            <label class="chip-checkbox"><input type="checkbox" name="comorbidades" value="Artrite / Artrose"><span>Artrite / Artrose</span></label>
+                            <label class="chip-checkbox"><input type="checkbox" name="comorbidades" value="Lúpus Eritematoso"><span>Lúpus Eritematoso</span></label>
+                            <label class="chip-checkbox"><input type="checkbox" name="comorbidades" value="HIV / AIDS"><span>HIV / AIDS</span></label>
+                            <label class="chip-checkbox"><input type="checkbox" name="comorbidades" value="Transtorno Psiquiátrico"><span>Transtorno Psiquiátrico</span></label>
+                            <label class="chip-checkbox"><input type="checkbox" name="comorbidades" value="Dependência Química / Álcool"><span>Dependência Química / Álcool</span></label>
+                            <label class="chip-checkbox"><input type="checkbox" name="comorbidades" value="Gestante"><span>Gestante</span></label>
+                            <label class="chip-checkbox"><input type="checkbox" name="comorbidades" value="Coagulopatia"><span>Coagulopatia</span></label>
+                            <label class="chip-checkbox"><input type="checkbox" name="comorbidades" value="Anemia Crônica"><span>Anemia Crônica</span></label>
+
+                            <label class="chip-checkbox o-outros">
+                                <input type="checkbox" id="chk-outra-comorbidade" onchange="toggleCampoOutraComorbidade()">
+                                <span>➕ Outra...</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="input-grupo" id="grupo-outra-comorbidade" style="display: none; margin-top: 1rem;">
+                        <label for="outra_comorbidade_texto">Especifique a outra comorbidade:</label>
+                        <input type="text" id="outra_comorbidade_texto" placeholder="Ex: Alzheimer, Hipotireoidismo...">
+                    </div>
+
+                    <div class="botoes-alinhamento">
+                        <button type="button" class="btn-voltar" onclick="irParaPasso(2)">⬅ Voltar</button>
+                        <button type="button" class="btn-proximo" onclick="irParaPasso(4)">Avançar para Protocolo ➔</button>
+                    </div>
+                </div>
+
+                <div id="passo-4" class="conteudo-passo">
+                    <div class="card-header">
+                        <h2>Protocolo de Classificação</h2>
+                        <p>Selecione a queixa principal para iniciar as perguntas em cascata</p>
+                    </div>
+
+                    <div class="input-grupo">
+                        <label for="grande-filtro">Qual o discriminador/fluxo principal para este atendimento?</label>
+                        <select id="grande-filtro" onchange="carregarPerguntasDoFiltro()">
+                        <option value="">-- Selecione um Protocolo --</option>
+                        </select>
+                    </div>
+
+                    <div id="container-perguntas-protocolo"></div>
+
+                        <div class="botoes-alinhamento" style="margin-top: 2rem;">
+                        <button type="button" class="btn-voltar" onclick="irParaPasso(3)">⬅ Voltar</button>
+                        <button type="button" class="btn-principal" id="btn-avancar-bloco" onclick="processarBlocoAtual()" style="display: none;">Avaliar Bloco ➔</button>
+                    </div>
+                </div>
+
+            </form>
+        </section>
+
+        <section class="card">
+            <div class="card-header">
+                <h2>Fila de Atendimento Ativa</h2>
+                <p>Lista monitorada e ordenada dinamicamente por gravidade clínica</p>
+            </div>
+
+            <div class="tabela-container">
+                <table class="tabela-moderna">
+                    <thead>
+                        <tr>
+                            <th>Paciente</th>
+                            <th>Sintomas / Veredito Clínico</th>
+                            <th>Entrada / Risco</th>
+                            <th class="texto-direita">Ação</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tabela-pacientes">
+                        <tr class="linha-vazia">
+                            <td colspan="4">
+                                <div class="feedback-vazio">
+                                    🏥 Nenhum paciente aguardando chamada neste momento.
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+    </main>
+
+
+
+    <!-- Modal Emergência Direta -->
+    <div id="modal-emergencia" class="modal-overlay" style="display:none;" onclick="fecharModalEmergencia(event)">
+        <div class="modal-box">
+            <div class="modal-header">
+                <span class="piscando-vermelho"></span>
+                <h3>Emergência Direta</h3>
+            </div>
+            <p class="modal-desc">Paciente será inserido imediatamente no topo da fila como <strong>EMERGÊNCIA</strong>, sem triagem.</p>
+
+            <div class="input-grupo" style="margin-bottom:1rem;">
+                <label for="emerg-nome">Nome do Paciente</label>
+                <input type="text" id="emerg-nome" placeholder="Digite o nome (ou deixe em branco)">
+            </div>
+
+            <div class="input-grupo" style="margin-bottom:0;">
+                <label for="emerg-obs">Motivo / Observação</label>
+                <input type="text" id="emerg-obs" placeholder="Ex: TCE grave, parada respiratória...">
+            </div>
+
+            <div class="modal-botoes">
+                <button class="btn-voltar" onclick="fecharModalEmergencia()">Cancelar</button>
+                <button class="btn-emergencia" onclick="confirmarEmergenciaDireta()">🚨 Confirmar Emergência</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="protocolos.js" defer></script>
+    <script src="api.js" defer></script>
+    <script src="app.js" defer></script>
+</body>
+</html>
