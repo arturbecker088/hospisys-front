@@ -259,7 +259,7 @@ function renderizarBlocoAtual() {
                         </label>
                     </div>
                 </div>
-                <button class="btn-explicacao" onclick="toggleExplicacao('exp-prot-${p.id}', this)" style="margin-top:0.2rem;">
+                <button type="button" class="btn-explicacao" onclick="toggleExplicacao('exp-prot-${p.id}', this)" style="margin-top:0.2rem;">
                     💬 Explicação
                 </button>
                 <div class="bloco-explicacao" id="exp-prot-${p.id}" style="display:none;width:100%;">
@@ -455,33 +455,8 @@ function atualizarTabelaFila() {
                </div>`
             : '';
 
-        // Protocolo 4: justificativas com pergunta e explicação inline
-        const vereditoHtml = p.justificativas && p.justificativas.length
-            ? `<div style="margin-bottom:0.3rem;">
-                   <span style="display:inline-flex;align-items:center;gap:0.3rem;font-size:0.8rem;font-weight:700;color:#b45309;">
-                       <span style="width:10px;height:10px;background:#b45309;border-radius:2px;display:inline-block;"></span>
-                       CRITÉRIOS IDENTIFICADOS
-                   </span>
-                   <div style="margin-top:0.3rem;display:flex;flex-direction:column;gap:0.4rem;">
-                       ${p.justificativas.map(j => {
-                           const sepIdx = j.indexOf(']:');
-                           if (sepIdx !== -1) {
-                               const pergunta = j.substring(1, sepIdx).trim();
-                               const explicacao = j.substring(sepIdx + 2).trim();
-                               return `<div style="background:#fef3c7;border-left:3px solid #b45309;border-radius:4px;padding:0.4rem 0.6rem;">
-                                   <div style="font-size:0.8rem;font-weight:600;color:#92400e;">${pergunta}</div>
-                                   <div style="font-size:0.75rem;color:#78350f;margin-top:0.15rem;">${explicacao}</div>
-                               </div>`;
-                           } else {
-                               return `<div style="background:#fef3c7;border-left:3px solid #b45309;border-radius:4px;padding:0.4rem 0.6rem;">
-                                   <div style="font-size:0.78rem;color:#78350f;">${j}</div>
-                               </div>`;
-                           }
-                       }).join('')}
-                   </div>
-               </div>`
-            : '';
-        const veredito = vereditoHtml;
+        // Veredito removido da fila — explicação fica só no formulário
+        const veredito = '';
 
         tbody.innerHTML += `
             <tr>
