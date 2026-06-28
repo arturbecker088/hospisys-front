@@ -390,10 +390,14 @@ async function carregarFilaDoBanco() {
         };
         filaPacientesSimulada = fila.map(item => {
             const local = dadosLocaisTriagem[item.id_triagem] || {};
-            // Usa hora_entrada diretamente como string para evitar fuso horário
-            const horaStr = item.data_entrada
-                ? item.data_entrada.substring(11, 16)
-                : new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+            // Converte hora do banco (UTC) para horário de Brasília (UTC-3)
+            let horaStr;
+            if (item.data_entrada) {
+                const dataUTC = new Date(item.data_entrada + 'Z');
+                horaStr = dataUTC.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit', timeZone: 'America/Sao_Paulo' });
+            } else {
+                horaStr = new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+            }
             return {
                 id_triagem: item.id_triagem,
                 nome: item.nome_paciente,
@@ -462,11 +466,15 @@ function atualizarTabelaFila() {
                 ? `<div class="bloco-explicacao" style="margin-top:0.4rem;">
                        <div class="explicacao-texto">${justTexto}</div>
                    </div>`
-                : `<button class="btn-explicacao" onclick="toggleExplicacao('exp-${idx}', this)" title="Ver veredito clínico">
-                       💬 Explicação
-                   </button>
-                   <div class="bloco-explicacao" id="exp-${idx}" style="display:none;">
-                       <div class="explicacao-texto">${justTexto}</div>
+                : `<div style="margin-top:0.3rem;">
+                       <div style="font-size:0.78rem;font-weight:700;color:var(--texto-mutado);margin-bottom:0.2rem;">📋 VEREDITO</div>
+                       <div style="font-size:0.82rem;color:var(--texto-escuro);font-weight:500;">${justTexto.split('<br>')[0].replace(/\[.*?\]:\s*/, '').split(':')[0]}</div>
+                       <button class="btn-explicacao" onclick="toggleExplicacao('exp-${idx}', this)" title="Ver explicação">
+                           💬 Explicação
+                       </button>
+                       <div class="bloco-explicacao" id="exp-${idx}" style="display:none;">
+                           <div class="explicacao-texto">${justTexto}</div>
+                       </div>
                    </div>`
         ) : '';
 
