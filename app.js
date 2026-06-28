@@ -490,7 +490,6 @@ function atualizarTabelaFila() {
                 </td>
             </tr>`;
     });
-    });
 }
 
 function toggleExplicacao(id, btn) {
