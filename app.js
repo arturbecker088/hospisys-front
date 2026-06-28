@@ -331,7 +331,11 @@ async function finalizarTriagemComSucesso(classificacaoFinal) {
             id_paciente: paciente.id_paciente,
             id_enfermeiro: 1,
             classificacao: classificacaoFinal,
-            consciente: true
+            consciente: true,
+            sintomas_texto: sintomasSelecionados.join('|'),
+            comorbidades_texto: comorbidadesSelecionadas.join('|'),
+            veredito_texto: justificativasAcumuladas.join('||'),
+            protocolo_texto: protocoloAtual
         });
 
         // 3. Guarda os dados locais para exibir na fila
@@ -373,8 +377,12 @@ async function carregarFilaDoBanco() {
             "NÃO URGENTE": "#3b82f6"
         };
         filaPacientesSimulada = fila.map(item => {
-            const local = dadosLocaisTriagem[item.id_triagem] || {};
-            // Converte hora do banco (UTC) para horário de Brasília (UTC-3)
+            // Usa dados do banco — persistem em qualquer dispositivo
+            const sintomas = item.sintomas_texto ? item.sintomas_texto.split('|').filter(Boolean) : [];
+            const comorbidades = item.comorbidades_texto ? item.comorbidades_texto.split('|').filter(Boolean) : [];
+            const justificativas = item.veredito_texto ? item.veredito_texto.split('||').filter(Boolean) : [];
+            const protocolo = item.protocolo_texto || item.classificacao;
+
             let horaStr;
             if (item.data_entrada) {
                 const dataUTC = new Date(item.data_entrada + 'Z');
@@ -382,13 +390,14 @@ async function carregarFilaDoBanco() {
             } else {
                 horaStr = new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
             }
+
             return {
                 id_triagem: item.id_triagem,
                 nome: item.nome_paciente,
-                protocolo: local.protocolo || item.classificacao,
-                sintomas: local.sintomas || [],
-                comorbidades: local.comorbidades || [],
-                justificativas: local.justificativas || [],
+                protocolo: protocolo,
+                sintomas: sintomas,
+                comorbidades: comorbidades,
+                justificativas: justificativas,
                 hora: horaStr,
                 riscoTexto: item.classificacao,
                 riscoCor: coresRiscoMap[item.classificacao] || "#888",
