@@ -137,90 +137,75 @@ document.getElementById('cpf').addEventListener('input', function (e) {
     }
 });
 
-// Máscara de Data DD/MM/AAAA
+// Máscara de Data DD/MM/AAAA — input livre com formatação automática
 (function() {
     const displayInput = document.getElementById('data_nascimento_display');
     const hiddenInput = document.getElementById('data_nascimento');
 
     function syncHidden(displayVal) {
-        // Só sincroniza se a data estiver completamente preenchida (sem underscores)
-        const semUnderscore = displayVal.replace(/_/g, '');
         const match = displayVal.match(/^(\d{2})\/(\d{2})\/(\d{4})$/);
         hiddenInput.value = match ? `${match[3]}-${match[2]}-${match[1]}` : '';
     }
 
-    displayInput.placeholder = 'DD/MM/AAAA';
+    function formatarData(raw) {
+        // Remove tudo que não é dígito
+        const nums = raw.replace(/\D/g, '').slice(0, 8);
+        let resultado = nums;
+        if (nums.length > 2) resultado = nums.slice(0, 2) + '/' + nums.slice(2);
+        if (nums.length > 4) resultado = nums.slice(0, 2) + '/' + nums.slice(2, 4) + '/' + nums.slice(4);
+        return resultado;
+    }
 
-    displayInput.addEventListener('focus', function() {
-        if (!this.value) this.value = '__/__/____';
-        setTimeout(() => { this.setSelectionRange(0, 0); }, 0);
+    displayInput.placeholder = 'DD/MM/AAAA';
+    displayInput.setAttribute('inputmode', 'numeric');
+
+    displayInput.addEventListener('input', function(e) {
+        const cursorPos = this.selectionStart;
+        const valorAntes = this.value;
+        const digitosAntes = valorAntes.replace(/\D/g, '').length;
+
+        const formatted = formatarData(this.value);
+        this.value = formatted;
+
+        // Reposiciona o cursor inteligentemente
+        const digitosDepois = formatted.replace(/\D/g, '').length;
+        let novoCursor = cursorPos;
+        // Se o cursor está numa barra, pula pra frente
+        if (formatted[novoCursor - 1] === '/' && digitosDepois >= digitosAntes) novoCursor++;
+        this.setSelectionRange(novoCursor, novoCursor);
+
+        syncHidden(formatted);
+        // Valida ao completar
+        if (formatted.length === 10) validarDataInline(formatted);
+        else limparErroCampo('data_nascimento_display');
     });
 
     displayInput.addEventListener('blur', function() {
-        if (this.value === '__/__/____') this.value = '';
-        syncHidden(this.value);
         const val = this.value;
-        if (!val) { limparErroCampo('data_nascimento_display'); return; }
-        const match = val.match(/^(\d{2})\/(\d{2})\/(\d{4})$/);
-        if (!match || val.includes('_')) {
-            mostrarErroCampo('data_nascimento_display', '⚠️ Data incompleta. Use o formato DD/MM/AAAA.');
-            return;
-        }
-        const dia = parseInt(match[1]), mes = parseInt(match[2]), ano = parseInt(match[3]);
-        const dataObj = new Date(ano, mes - 1, dia);
-        const hoje = new Date();
-        if (dataObj.getDate() !== dia || dataObj.getMonth() !== mes - 1 || dataObj.getFullYear() !== ano
-            || mes < 1 || mes > 12 || dia < 1 || ano < 1900 || dataObj > hoje) {
-            mostrarErroCampo('data_nascimento_display', '⚠️ Data inválida. Verifique dia, mês e ano.');
-        } else {
-            limparErroCampo('data_nascimento_display');
-        }
-    });
-
-    displayInput.addEventListener('keydown', function(e) {
-        const pos = this.selectionStart;
-        const val = this.value.split('');
-
-        if (!/^\d$/.test(e.key) && e.key !== 'Backspace' && e.key !== 'Tab' && e.key !== 'ArrowLeft' && e.key !== 'ArrowRight') {
-            e.preventDefault();
-            return;
-        }
-
-        if (e.key === 'Backspace') {
-            e.preventDefault();
-            let p = pos - 1;
-            while (p >= 0 && (val[p] === '/' )) p--;
-            if (p < 0) return;
-            val[p] = '_';
-            this.value = val.join('');
-            setTimeout(() => { this.setSelectionRange(p, p); }, 0);
-            syncHidden(this.value);
-            return;
-        }
-
-        if (/^\d$/.test(e.key)) {
-            e.preventDefault();
-            let p = pos;
-            while (p < val.length && val[p] === '/') p++;
-            if (p >= val.length) return;
-            val[p] = e.key;
-            this.value = val.join('');
-            let next = p + 1;
-            while (next < val.length && val[next] === '/') next++;
-            setTimeout(() => { this.setSelectionRange(next, next); }, 0);
-            syncHidden(this.value);
-        }
-    });
-
-    displayInput.addEventListener('click', function() {
-        const pos = this.selectionStart;
-        let segStart = 0;
-        if (pos <= 2) segStart = 0;
-        else if (pos <= 5) segStart = 3;
-        else segStart = 6;
-        setTimeout(() => { this.setSelectionRange(segStart, segStart); }, 0);
+        if (!val) { limparErroCampo('data_nascimento_display'); syncHidden(''); return; }
+        validarDataInline(val);
+        syncHidden(val);
     });
 })();
+
+function validarDataInline(val) {
+    const match = val.match(/^(\d{2})\/(\d{2})\/(\d{4})$/);
+    if (!match) {
+        mostrarErroCampo('data_nascimento_display', '⚠️ Data incompleta. Use o formato DD/MM/AAAA.');
+        return false;
+    }
+    const dia = parseInt(match[1]), mes = parseInt(match[2]), ano = parseInt(match[3]);
+    const dataObj = new Date(ano, mes - 1, dia);
+    const hoje = new Date();
+    if (dataObj.getDate() !== dia || dataObj.getMonth() !== mes - 1 ||
+        dataObj.getFullYear() !== ano || mes < 1 || mes > 12 || dia < 1 || ano < 1900 || dataObj > hoje) {
+        mostrarErroCampo('data_nascimento_display', '⚠️ Data inválida. Verifique dia, mês e ano.');
+        return false;
+    }
+    limparErroCampo('data_nascimento_display');
+    return true;
+}
+
 
 // Controle de Fluxo entre os Passos do Formulário
 function irParaPasso(numeroPasso) {
@@ -249,26 +234,11 @@ function irParaPasso(numeroPasso) {
             limparErroCampo('cpf');
         }
 
-        if (!dataNas || dataNas === '__/__/____' || dataNas.includes('_')) {
-            mostrarErroCampo('data_nascimento_display', '⚠️ Data incompleta. Use o formato DD/MM/AAAA.');
+        if (!dataNas) {
+            mostrarErroCampo('data_nascimento_display', '⚠️ Data obrigatória. Use o formato DD/MM/AAAA.');
             erros = true;
-        } else {
-            const match = dataNas.match(/^(\d{2})\/(\d{2})\/(\d{4})$/);
-            if (!match) {
-                mostrarErroCampo('data_nascimento_display', '⚠️ Data inválida. Use DD/MM/AAAA.');
-                erros = true;
-            } else {
-                const dia = parseInt(match[1]), mes = parseInt(match[2]), ano = parseInt(match[3]);
-                const dataObj = new Date(ano, mes - 1, dia);
-                const hoje = new Date();
-                if (dataObj.getDate() !== dia || dataObj.getMonth() !== mes - 1 ||
-                    dataObj.getFullYear() !== ano || mes < 1 || mes > 12 || dia < 1 || ano < 1900 || dataObj > hoje) {
-                    mostrarErroCampo('data_nascimento_display', '⚠️ Data inválida. Verifique dia, mês e ano.');
-                    erros = true;
-                } else {
-                    limparErroCampo('data_nascimento_display');
-                }
-            }
+        } else if (!validarDataInline(dataNas)) {
+            erros = true;
         }
 
         if (erros) return;
@@ -508,13 +478,29 @@ async function carregarFilaDoBanco() {
                 hora: horaStr,
                 riscoTexto: item.classificacao,
                 riscoCor: coresRiscoMap[item.classificacao] || "#888",
-                weight: item.prioridade
+                weight: item.prioridade,
+                data_nascimento: item.data_nascimento || null
             };
         });
         atualizarTabelaFila();
     } catch (erro) {
         console.error("Erro ao carregar fila:", erro);
     }
+}
+
+function calcularIdade(dataNascStr) {
+    if (!dataNascStr) return null;
+    const nasc = new Date(dataNascStr + 'T00:00:00');
+    if (isNaN(nasc)) return null;
+    const hoje = new Date();
+    let anos = hoje.getFullYear() - nasc.getFullYear();
+    let meses = hoje.getMonth() - nasc.getMonth();
+    if (meses < 0 || (meses === 0 && hoje.getDate() < nasc.getDate())) anos--;
+    meses = ((hoje.getMonth() - nasc.getMonth()) + 12) % 12;
+    if (hoje.getDate() < nasc.getDate()) meses = (meses + 11) % 12;
+    if (anos < 0) return null;
+    if (anos === 0) return meses <= 0 ? 'Recém-nascido' : `${meses} ${meses === 1 ? 'mês' : 'meses'}`;
+    return `${anos} ${anos === 1 ? 'ano' : 'anos'}`;
 }
 
 function atualizarTabelaFila() {
@@ -559,7 +545,10 @@ function atualizarTabelaFila() {
 
         tbody.innerHTML += `
             <tr>
-                <td><strong>${p.nome}</strong></td>
+                <td>
+                    <strong>${p.nome}</strong>
+                    ${calcularIdade(p.data_nascimento) ? `<br><small style="color:var(--texto-mutado);font-size:0.78rem;">${calcularIdade(p.data_nascimento)}</small>` : ''}
+                </td>
                 <td>
                     <div style="font-size:0.85rem;font-weight:600;color:var(--texto-mutado);margin-bottom:0.5rem;">📋 ${p.protocolo}</div>
                     ${sintomasHtml}
