@@ -98,17 +98,8 @@ function atualizarDropdownFiltros() {
 function validarCPF(cpf) {
     const nums = cpf.replace(/\D/g, '');
     if (nums.length !== 11) return false;
-    if (/^(\d)\1{10}$/.test(nums)) return false;
-    let soma = 0;
-    for (let i = 0; i < 9; i++) soma += parseInt(nums[i]) * (10 - i);
-    let resto = (soma * 10) % 11;
-    if (resto === 10 || resto === 11) resto = 0;
-    if (resto !== parseInt(nums[9])) return false;
-    soma = 0;
-    for (let i = 0; i < 10; i++) soma += parseInt(nums[i]) * (11 - i);
-    resto = (soma * 10) % 11;
-    if (resto === 10 || resto === 11) resto = 0;
-    return resto === parseInt(nums[10]);
+    if (nums === '00000000000') return false; // bloqueia só 000.000.000-00
+    return true;
 }
 
 function mostrarErroCampo(id, msg) {
