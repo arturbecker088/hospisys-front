@@ -8,7 +8,11 @@ async function buscarOuCriarPaciente(nome, cpf, dataNascimento) {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ nome, cpf, data_nascimento: dataNascimento })
     });
-    if (!res.ok) throw new Error("Erro ao criar/buscar paciente");
+    if (!res.ok) {
+        let detalhe = "";
+        try { const err = await res.json(); detalhe = JSON.stringify(err); } catch {}
+        throw new Error(`Erro ao criar/buscar paciente (HTTP ${res.status}): ${detalhe}`);
+    }
     return res.json();
 }
 
@@ -19,7 +23,11 @@ async function salvarTriagem(dados) {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(dados)
     });
-    if (!res.ok) throw new Error("Erro ao salvar triagem");
+    if (!res.ok) {
+        let detalhe = "";
+        try { const err = await res.json(); detalhe = JSON.stringify(err); } catch {}
+        throw new Error(`Erro ao salvar triagem (HTTP ${res.status}): ${detalhe}`);
+    }
     return res.json();
 }
 
