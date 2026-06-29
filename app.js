@@ -462,10 +462,12 @@ async function carregarFilaDoBanco() {
 
             let horaStr;
             if (item.data_entrada) {
-                const dataUTC = new Date(item.data_entrada + 'Z');
+                // Garante que trata como UTC independente do formato que vier
+                const dataStr = item.data_entrada.endsWith('Z') ? item.data_entrada : item.data_entrada + 'Z';
+                const dataUTC = new Date(dataStr);
                 horaStr = dataUTC.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit', timeZone: 'America/Sao_Paulo' });
             } else {
-                horaStr = new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+                horaStr = new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit', timeZone: 'America/Sao_Paulo' });
             }
 
             return {
@@ -547,7 +549,7 @@ function atualizarTabelaFila() {
             <tr>
                 <td>
                     <strong>${p.nome}</strong>
-                    ${calcularIdade(p.data_nascimento) ? `<br><small style="color:var(--texto-mutado);font-size:0.78rem;">${calcularIdade(p.data_nascimento)}</small>` : ''}
+                    ${calcularIdade(p.data_nascimento) && p.data_nascimento !== '1900-01-01' ? `<br><small style="color:var(--texto-mutado);font-size:0.78rem;">${calcularIdade(p.data_nascimento)}</small>` : ''}
                 </td>
                 <td>
                     <div style="font-size:0.85rem;font-weight:600;color:var(--texto-mutado);margin-bottom:0.5rem;">📋 ${p.protocolo}</div>
@@ -604,7 +606,7 @@ function fecharModalEmergencia(event) {
 async function confirmarEmergenciaDireta() {
     const nome = document.getElementById('emerg-nome').value.trim() || 'PACIENTE NÃO IDENTIFICADO';
     const obs = document.getElementById('emerg-obs').value.trim() || 'Acionamento direto de emergência.';
-    const horaAtual = new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+    const horaAtual = new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit', timeZone: 'America/Sao_Paulo' });
 
     try {
         await registrarEmergenciaDireta(nome, obs);
