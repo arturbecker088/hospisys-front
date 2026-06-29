@@ -556,8 +556,8 @@ function atualizarTabelaFila() {
                         <span style="width:10px;height:10px;background:${p.riscoCor};border-radius:2px;display:inline-block;flex-shrink:0;"></span>
                         ${coresRisco[p.riscoTexto] ? coresRisco[p.riscoTexto].texto.toUpperCase() : p.riscoTexto}
                     </div>
-                    ${p.protocolo === 'EMERGÊNCIA DIRETA' && p.justificativas && p.justificativas.length
-                        ? `<div style="font-size:0.82rem;color:var(--texto-mutado);font-style:italic;margin-bottom:0.3rem;">${p.justificativas[0]}</div>`
+                    ${p.protocolo === 'EMERGÊNCIA DIRETA'
+                        ? `<div style="font-size:0.82rem;color:#ef4444;font-weight:600;margin-bottom:0.3rem;">🚨 ${p.justificativas && p.justificativas.length && p.justificativas[0] ? p.justificativas[0] : 'Acionamento direto de emergência.'}</div>`
                         : `<div style="font-size:0.82rem;color:var(--texto-mutado);margin-bottom:0.3rem;">📋 ${p.protocolo}</div>`
                     }
                     ${sintomasHtml}
@@ -571,7 +571,10 @@ function atualizarTabelaFila() {
                     <br><small style="color:var(--texto-mutado);display:inline-block;margin-top:4px;">${p.hora}</small>
                 </td>
                 <td class="texto-direita">
-                    <button class="btn-voltar" style="padding:0.5rem 1rem;font-size:0.95rem;" onclick="chamarPaciente(${idx})">Chamar</button>
+                    ${p.protocolo === 'EMERGÊNCIA DIRETA'
+                        ? `<button class="btn-voltar" style="padding:0.5rem 1rem;font-size:0.95rem;background-color:#ef4444;border-color:#ef4444;color:#fff;" onclick="chamarPaciente(${idx})">Chamar</button>`
+                        : `<button class="btn-voltar" style="padding:0.5rem 1rem;font-size:0.95rem;" onclick="chamarPaciente(${idx})">Chamar</button>`
+                    }
                 </td>
             </tr>`;
     });
