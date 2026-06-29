@@ -552,14 +552,21 @@ function atualizarTabelaFila() {
                     ${calcularIdade(p.data_nascimento) && p.data_nascimento !== '1900-01-01' ? `<br><small style="color:var(--texto-mutado);font-size:0.78rem;">${calcularIdade(p.data_nascimento)}</small>` : ''}
                 </td>
                 <td>
-                    <div style="font-size:0.85rem;font-weight:600;color:var(--texto-mutado);margin-bottom:0.5rem;">📋 ${p.protocolo}</div>
+                    <div style="font-size:0.85rem;font-weight:700;color:${p.riscoCor};margin-bottom:0.5rem;display:inline-flex;align-items:center;gap:0.3rem;">
+                        <span style="width:10px;height:10px;background:${p.riscoCor};border-radius:2px;display:inline-block;flex-shrink:0;"></span>
+                        ${coresRisco[p.riscoTexto] ? coresRisco[p.riscoTexto].texto.toUpperCase() : p.riscoTexto}
+                    </div>
+                    ${p.protocolo === 'EMERGÊNCIA DIRETA' && p.justificativas && p.justificativas.length
+                        ? `<div style="font-size:0.82rem;color:var(--texto-mutado);font-style:italic;margin-bottom:0.3rem;">${p.justificativas[0]}</div>`
+                        : `<div style="font-size:0.82rem;color:var(--texto-mutado);margin-bottom:0.3rem;">📋 ${p.protocolo}</div>`
+                    }
                     ${sintomasHtml}
                     ${comorbHtml}
                     ${veredito}
                 </td>
                 <td>
                     <span style="background-color:${p.riscoCor};color:white;padding:0.35rem 0.6rem;border-radius:6px;font-size:0.8rem;font-weight:bold;text-transform:uppercase;">
-                        ${p.riscoTexto}
+                        <span style="color:white;">${p.riscoTexto}</span>
                     </span>
                     <br><small style="color:var(--texto-mutado);display:inline-block;margin-top:4px;">${p.hora}</small>
                 </td>
